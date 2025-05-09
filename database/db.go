@@ -2,35 +2,50 @@ package database
 
 import (
 	"context"
+	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
-	"os"
+	"sync"
+	"time"
 )
 
-var collection *mongo.Collection
+var (
+	clientInstance *mongo.Client
+	clientOnce     sync.Once
+)
 
-func Initdb() (*mongo.Client, error) {
-	// Mongodb Connection String
-	clientOptions := options.Client().ApplyURI("mongodb+srv://Toby:lRgxjw2HzMEdgJAF@cluster0.jalvxqn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+func GetMongoClient() *mongo.Client {
+	clientOnce.Do(func() {
+		// Load .env file
+		if err := godotenv.Load("../.env"); err != nil {
+			log.Println("No .env file found or failed to load it")
+		}
 
-	//Getting Username and Password from .env
-	username := os.Getenv("MONGO_DB_USERNAME")
-	password := os.Getenv("MONGO_DB_PASSWORD")
+		//uri := os.Getenv("MONGO_URI")
+		uri := "mongodb+srv://akulasaht:tnmNEP0sO7Hxh2mD@taskcluster.qvgv6lg.mongodb.net/Todo_db?retryWrites=true&w=majority&appName=TaskCluster"
 
-	// Setting auth Credentials
-	clientOptions.SetAuth(options.Credential{
-		Username: username,
-		Password: password,
+		log.Println("mongourl", uri)
+		if uri == "" {
+			log.Fatal("MONGO_URI not set in environment")
+		}
+
+		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+		defer cancel()
+
+		var err error
+		clientInstance, err = mongo.Connect(ctx, options.Client().ApplyURI(uri))
+		if err != nil {
+			log.Fatalf("Mongo connection error: %v", err)
+		}
+
+		if err := clientInstance.Ping(ctx, nil); err != nil {
+			log.Fatalf("Mongo ping failed: %v", err)
+		}
+
+		log.Println("MongoDB connected successfully")
 	})
 
-	//	Connect to mongodb
-	client, err := mongo.Connect(context.Background(), clientOptions)
-	if err != nil {
-		log.Fatal(err)
-		return nil, err
-	}
-	log.Println("connected to mongo...")
+	return clientInstance
 
-	return client, nil
 }
