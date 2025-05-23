@@ -1,0 +1,59 @@
+Index: Makefile
+===================================================================
+diff --git a/Makefile b/Makefile
+deleted file mode 100644
+--- a/Makefile	(revision 2c0dd44dc527a5b4dd102b68300d377010d71511)
++++ /dev/null	(revision 2c0dd44dc527a5b4dd102b68300d377010d71511)
+@@ -1,24 +0,0 @@
+-  # Load environment variables
+-  include .env
+-
+-up:
+-	@echo "Starting mongodb containers..."
+-	docker-compose  up --build -d --remove-orphans
+-
+-down:
+-		@echo "Stopping containers..."
+-		docker-compose down
+-
+-build:
+-	go build -o ${BINARY} ./cmd/
+-
+-start:
+-	MONGODB_URI=${MONGODB_URI} ./${BINARY}
+-
+-restart: build start
+-
+-#clean:
+-#	docker-compose down -v
+-#	rm -f ${BINARY}
+-#
+-
+Index: docker-compose.yml
+===================================================================
+diff --git a/docker-compose.yml b/docker-compose.yml
+deleted file mode 100644
+--- a/docker-compose.yml	(revision 2c0dd44dc527a5b4dd102b68300d377010d71511)
++++ /dev/null	(revision 2c0dd44dc527a5b4dd102b68300d377010d71511)
+@@ -1,21 +0,0 @@
+-version: "3"
+-
+-services:
+-
+-  mongodb:
+-    container_name: ${DB_CONTAINER_NAME}
+-    image: "mongo:6.0"
+-    restart: unless-stopped
+-    environment:
+-      - MONGO_INITDB_DATABASE=${MONGO_DB}
+-      - MONGO_INITDB_ROOT_USERNAME=${MONGO_DB_USERNAME}
+-      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_DB_PASSWORD}
+-
+-    ports:
+-      - "27017:27017"
+-
+-#    volumes:
+-#       - mongo_data:/data/db
+-
+-
+-

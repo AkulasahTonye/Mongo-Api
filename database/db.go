@@ -23,7 +23,7 @@ func GetMongoClient() *mongo.Client {
 		}
 
 		//uri := os.Getenv("MONGO_URI")
-		uri := "mongodb+srv://akulasaht:tnmNEP0sO7Hxh2mD@taskcluster.qvgv6lg.mongodb.net/Todo_db?retryWrites=true&w=majority&appName=TaskCluster"
+		uri := "mongodb+srv://akulasaht:tnmNEP0sO7Hxh2mD@taskcluster.qvgv6lg.mongodb.net/Todo_db"
 
 		log.Println("mongourl", uri)
 		if uri == "" {
